@@ -58,23 +58,17 @@ fun MotionCaptureScreen(
             cameraNode.lookAt(sampleModel)
 
             with(sampleModel.model) {
-                entities.toList().mapNotNull { entity ->
-                    val name = getName(entity)
-                    val poseRotation = pose().extractPoseByName(name)
-                    val poseQuaternion = poseRotation?.toQuaternion()
-                    if (poseQuaternion == null) {
-                        null
-                    } else {
-                        poseQuaternion to entity
+                entities.toList()
+                    .mapNotNull { entity ->
+                        getName(entity).let { name ->
+                            pose().extractPoseByName(name)
+                                ?.toQuaternion()
+                                ?.let { quaternion -> quaternion to entity }
+                        }
                     }
-                }.forEach { (poseQuaternion, entity) ->
-                    val floatArray = poseQuaternion.toFloatArray()
-
-                    engine.transformManager.setTransform(
-                        entity,
-                        floatArray
-                    )
-                }
+                    .forEach { (quaternion, entity) ->
+                        engine.transformManager.setTransform(entity, quaternion.toFloatArray())
+                    }
             }
         }
     )

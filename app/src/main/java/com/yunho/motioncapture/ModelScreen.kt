@@ -60,6 +60,21 @@ fun ModelScreen(
         ),
         onFrame = {
             cameraNode.lookAt(kizunaAi)
+
+            val wrap = PoseSolverResultWrapper(pose())
+
+            kizunaAi.model.entities.forEach { entity ->
+                val poseRotation = wrap.getPoseRotationByIndex(entity)
+                val poseQuaternion = poseRotation?.toQuaternion2()
+                val floatArray = poseQuaternion?.let { quat -> quaternionToFloatArray(quat) }
+
+                floatArray?.let { array ->
+                    kizunaAi.model.engine.transformManager.setTransform(
+                        entity,
+                        array
+                    )
+                }
+            }
         }
     )
 }

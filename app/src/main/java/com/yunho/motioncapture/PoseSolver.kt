@@ -2,6 +2,7 @@ package com.yunho.motioncapture
 
 import com.google.mediapipe.tasks.components.containers.Landmark
 import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
+import io.github.sceneview.collision.Quaternion
 import io.github.sceneview.math.Rotation
 import org.joml.Quaternionf
 import org.joml.Vector3f
@@ -9,6 +10,7 @@ import kotlin.math.PI
 import kotlin.math.acos
 import kotlin.math.atan2
 import kotlin.math.min
+import kotlin.reflect.KMutableProperty1
 
 data class PoseRotation(val x: Float, val y: Float, val z: Float, val w: Float) {
     companion object {
@@ -18,6 +20,136 @@ data class PoseRotation(val x: Float, val y: Float, val z: Float, val w: Float) 
     }
 
     fun toQuaternion(): Quaternionf = Quaternionf(x, y, z, w)
+
+    fun toQuaternion2(): Quaternion = Quaternion(x, y, z, w)
+}
+
+fun quaternionToFloatArray(q: Quaternion): FloatArray {
+    val w = q.w
+    val x = q.x
+    val y = q.y
+    val z = q.z
+    return floatArrayOf(
+        1f - 2f * (y * y + z * z),  // m00
+        2f * x * y + 2f * w * z,      // m10
+        2f * x * z - 2f * w * y,      // m20
+        0f,                         // m30
+
+        2f * x * y - 2f * w * z,      // m01
+        1f - 2f * (x * x + z * z),    // m11
+        2f * y * z + 2f * w * x,      // m21
+        0f,                         // m31
+
+        2f * x * z + 2f * w * y,      // m02
+        2f * y * z - 2f * w * x,      // m12
+        1f - 2f * (x * x + y * y),    // m22
+        0f,                         // m32
+
+        0f, 0f, 0f, 1f              // m03, m13, m23, m33
+    )
+}
+
+val poseToEntityMap: Map<Int, String> = mapOf(
+    23 to "上半身",  // upperBody
+    22 to "腰",  // lowerBody
+    89 to "首",  // neck
+    159 to "左足",  // leftHip (왼쪽 다리 시작 부분)
+    154 to "右足",  // rightHip (오른쪽 다리 시작 부분)
+    161 to "左足首",  // leftFoot
+    156 to "右足首",  // rightFoot
+    58 to "左腕",  // leftUpperArm
+    26 to "右腕",  // rightUpperArm
+    60 to "左ひじ",  // leftLowerArm
+    28 to "右ひじ",  // rightLowerArm
+    62 to "左手首",  // leftWrist
+    30 to "右手首",  // rightWrist
+    80 to "左親指１",  // leftThumbCMC
+    81 to "左親指２",  // leftThumbMCP
+    67 to "左人指１",  // leftIndexFingerMCP
+    68 to "左人指２",  // leftIndexFingerPIP
+    69 to "左人指３",  // leftIndexFingerDIP
+    63 to "左中指１",  // leftMiddleFingerMCP
+    64 to "左中指２",  // leftMiddleFingerPIP
+    65 to "左中指３",  // leftMiddleFingerDIP
+    76 to "左薬指１",  // leftRingFingerMCP
+    77 to "左薬指２",  // leftRingFingerPIP
+    78 to "左薬指３",  // leftRingFingerDIP
+    71 to "左小指１",  // leftPinkyFingerMCP
+    72 to "左小指２",  // leftPinkyFingerPIP
+    73 to "左小指３",  // leftPinkyFingerDIP
+    48 to "右親指１",  // rightThumbCMC
+    49 to "右親指２",  // rightThumbMCP
+    35 to "右人指１",  // rightIndexFingerMCP
+    36 to "右人指２",  // rightIndexFingerPIP
+    37 to "右人指３",  // rightIndexFingerDIP
+    31 to "右中指１",  // rightMiddleFingerMCP
+    32 to "右中指２",  // rightMiddleFingerPIP
+    33 to "右中指３",  // rightMiddleFingerDIP
+    44 to "右薬指１",  // rightRingFingerMCP
+    45 to "右薬指２",  // rightRingFingerPIP
+    46 to "右薬指３",  // rightRingFingerDIP
+    39 to "右小指１",  // rightPinkyFingerMCP
+    40 to "右小指２",  // rightPinkyFingerPIP
+    41 to "右小指３",  // rightPinkyFingerDIP
+    148 to "左目",  // leftEyeRotation
+    146 to "右目",  // rightEyeRotation
+)
+
+class PoseSolverResultWrapper(private val poseSolverResult: PoseSolverResult) {
+    private val indexToPoseField: Map<Int, KMutableProperty1<PoseSolverResult, PoseRotation>> =
+        mapOf(
+            23 to PoseSolverResult::upperBody,
+            22 to PoseSolverResult::lowerBody,
+            89 to PoseSolverResult::neck,
+            159 to PoseSolverResult::leftHip,
+            154 to PoseSolverResult::rightHip,
+            161 to PoseSolverResult::leftFoot,
+            156 to PoseSolverResult::rightFoot,
+            58 to PoseSolverResult::leftUpperArm,
+            26 to PoseSolverResult::rightUpperArm,
+            60 to PoseSolverResult::leftLowerArm,
+            28 to PoseSolverResult::rightLowerArm,
+            62 to PoseSolverResult::leftWrist,
+            30 to PoseSolverResult::rightWrist,
+            80 to PoseSolverResult::leftThumbCMC,
+            81 to PoseSolverResult::leftThumbMCP,
+            67 to PoseSolverResult::leftIndexFingerMCP,
+            68 to PoseSolverResult::leftIndexFingerPIP,
+            69 to PoseSolverResult::leftIndexFingerDIP,
+            63 to PoseSolverResult::leftMiddleFingerMCP,
+            64 to PoseSolverResult::leftMiddleFingerPIP,
+            65 to PoseSolverResult::leftMiddleFingerDIP,
+            76 to PoseSolverResult::leftRingFingerMCP,
+            77 to PoseSolverResult::leftRingFingerPIP,
+            78 to PoseSolverResult::leftRingFingerDIP,
+            71 to PoseSolverResult::leftPinkyFingerMCP,
+            72 to PoseSolverResult::leftPinkyFingerPIP,
+            73 to PoseSolverResult::leftPinkyFingerDIP,
+            48 to PoseSolverResult::rightThumbCMC,
+            49 to PoseSolverResult::rightThumbMCP,
+            35 to PoseSolverResult::rightIndexFingerMCP,
+            36 to PoseSolverResult::rightIndexFingerPIP,
+            37 to PoseSolverResult::rightIndexFingerDIP,
+            31 to PoseSolverResult::rightMiddleFingerMCP,
+            32 to PoseSolverResult::rightMiddleFingerPIP,
+            33 to PoseSolverResult::rightMiddleFingerDIP,
+            44 to PoseSolverResult::rightRingFingerMCP,
+            45 to PoseSolverResult::rightRingFingerPIP,
+            46 to PoseSolverResult::rightRingFingerDIP,
+            39 to PoseSolverResult::rightPinkyFingerMCP,
+            40 to PoseSolverResult::rightPinkyFingerPIP,
+            41 to PoseSolverResult::rightPinkyFingerDIP,
+            148 to PoseSolverResult::leftEyeRotation,
+            146 to PoseSolverResult::rightEyeRotation
+        )
+
+    fun getPoseRotationByIndex(index: Int): PoseRotation? {
+        return indexToPoseField[index]?.get(poseSolverResult)
+    }
+
+    fun setPoseRotationByIndex(index: Int, rotation: PoseRotation) {
+        indexToPoseField[index]?.set(poseSolverResult, rotation)
+    }
 }
 
 data class PoseSolverResult(

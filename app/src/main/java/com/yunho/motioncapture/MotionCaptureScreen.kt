@@ -16,7 +16,7 @@ import io.github.sceneview.rememberNode
 
 @Composable
 fun MotionCaptureScreen(
-    pose: () -> PoseSolverResult
+    captureResult: () -> PoseSolverResult
 ) {
     val engine = rememberEngine()
     val modelLoader = rememberModelLoader(engine)
@@ -61,7 +61,7 @@ fun MotionCaptureScreen(
                 entities.toList()
                     .mapNotNull { entity ->
                         getName(entity).let { name ->
-                            pose().extractPoseByName(name)
+                            captureResult().extractPoseByName(name)
                                 ?.toQuaternion()
                                 ?.let { quaternion -> quaternion to entity }
                         }

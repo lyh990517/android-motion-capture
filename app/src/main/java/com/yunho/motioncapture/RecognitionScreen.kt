@@ -9,9 +9,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 fun RecognitionScreen(
     viewModel: RecognitionViewModel = viewModel()
 ) {
-    val poseResult by viewModel.poseResultState.collectAsStateWithLifecycle()
+    val captureResult by viewModel.captureResult.collectAsStateWithLifecycle()
 
     CameraPreview(viewModel.imageAnalyzer)
 
-    MotionCaptureScreen { poseResult }
+    MotionCaptureScreen { captureResult }
 }

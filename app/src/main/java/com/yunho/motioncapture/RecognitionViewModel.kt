@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.update
 import kotlin.math.max
 
 class RecognitionViewModel(application: Application) : AndroidViewModel(application) {
-    val poseResultState = MutableStateFlow(PoseSolverResult())
+    val captureResult = MutableStateFlow(PoseSolverResult())
 
     private val holisticRecognizer by lazy {
         val baseOptionsBuilder = BaseOptions.builder().setModelAssetPath("holistic_landmarker.task")
@@ -39,7 +39,7 @@ class RecognitionViewModel(application: Application) : AndroidViewModel(applicat
                     faceLandmarks = face
                 )
 
-                poseResultState.update { poseResult }
+                captureResult.update { poseResult }
             }
 
         val options = optionsBuilder.build()

@@ -3,7 +3,6 @@ package com.yunho.motioncapture
 import android.app.Application
 import android.graphics.Bitmap
 import android.graphics.Matrix
-import android.util.Log
 import androidx.camera.core.ImageAnalysis
 import androidx.lifecycle.AndroidViewModel
 import com.google.mediapipe.framework.image.BitmapImageBuilder
@@ -12,14 +11,11 @@ import com.google.mediapipe.tasks.vision.core.RunningMode
 import com.google.mediapipe.tasks.vision.holisticlandmarker.HolisticLandmarker
 import com.google.mediapipe.tasks.vision.holisticlandmarker.HolisticLandmarker.HolisticLandmarkerOptions
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 import kotlin.math.max
 
-data class RecognitionUiState(
-    val recognized: String? = null,
-)
-
 class RecognitionViewModel(application: Application) : AndroidViewModel(application) {
-    val uiState = MutableStateFlow(RecognitionUiState())
+    val poseResultState = MutableStateFlow(PoseSolverResult())
 
     private val holisticRecognizer by lazy {
         val baseOptionsBuilder = BaseOptions.builder().setModelAssetPath("holistic_landmarker.task")
@@ -41,7 +37,7 @@ class RecognitionViewModel(application: Application) : AndroidViewModel(applicat
                     faceLandmarks = face
                 )
 
-                Log.i("result", "poseResult: $poseResult")
+                poseResultState.update { poseResult }
             }
 
         val options = optionsBuilder.build()

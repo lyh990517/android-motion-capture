@@ -11,10 +11,11 @@ import io.github.sceneview.rememberCameraNode
 import io.github.sceneview.rememberEngine
 import io.github.sceneview.rememberModelLoader
 import io.github.sceneview.rememberNode
-import io.github.sceneview.rememberOnGestureListener
 
 @Composable
-fun ModelScreen() {
+fun ModelScreen(
+    pose: () -> PoseSolverResult
+) {
     val engine = rememberEngine()
     val modelLoader = rememberModelLoader(engine)
 
@@ -26,7 +27,6 @@ fun ModelScreen() {
             scaleToUnits = 7f,
             autoAnimate = false
         ).apply {
-            playAnimation(0, 1f, true)
             position = Position(x = 0f, y = 0f, z = 0f)
         }
     }
@@ -35,16 +35,6 @@ fun ModelScreen() {
         position = Position(y = 2f, z = 1.0f)
         lookAt(kizunaAi)
         kizunaAi.addChildNode(this)
-    }
-
-    val modelNode = rememberNode {
-        ModelNode(
-            modelInstance = modelLoader.createModelInstance(
-                assetFileLocation = "models/tiny_isometric_room.glb"
-            )
-        ).apply {
-            scale *= 0.02f
-        }
     }
 
     val sky = rememberNode {
@@ -66,18 +56,10 @@ fun ModelScreen() {
         ),
         childNodes = listOf(
             kizunaAi,
-            sky,
-            modelNode
+            sky
         ),
         onFrame = {
             cameraNode.lookAt(kizunaAi)
-        },
-        onGestureListener = rememberOnGestureListener(
-            onDoubleTap = { _, node ->
-                node?.apply {
-                    scale *= 2.0f
-                }
-            }
-        )
+        }
     )
 }

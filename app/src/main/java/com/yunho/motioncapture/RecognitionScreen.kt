@@ -14,7 +14,7 @@ fun RecognitionScreen(
     modifier: Modifier = Modifier,
     viewModel: RecognitionViewModel = viewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val poseResult by viewModel.poseResultState.collectAsStateWithLifecycle()
 
     val context = LocalContext.current
 
@@ -28,5 +28,5 @@ fun RecognitionScreen(
         imageAnalysisUseCase = imageAnalysisUseCase
     )
 
-    ModelScreen()
+    ModelScreen { poseResult }
 }

@@ -68,8 +68,8 @@ class PoseSolverResultWrapper(private val poseSolverResult: PoseSolverResult) {
 //        "左足首" to PoseSolverResult::leftFoot,
 //        "右足首" to PoseSolverResult::rightFoot,
 //
-//        "右足首" to PoseSolverResult::leftWrist,
-//        "右手首" to PoseSolverResult::rightWrist,
+        "左手首" to PoseSolverResult::leftWrist,
+        "右手首" to PoseSolverResult::rightWrist,
 //
 //        "左目" to PoseSolverResult::leftEyeRotation,
 //        "右目" to PoseSolverResult::rightEyeRotation

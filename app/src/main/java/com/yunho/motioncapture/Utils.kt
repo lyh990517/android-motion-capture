@@ -29,10 +29,6 @@ fun Quaternion.toFloatArray(): FloatArray {
     )
 }
 
-operator fun List<Vector3f>.get(index: MainBodyIndex): Vector3f = this[index.index]
-operator fun List<Vector3f>.get(index: HandIndex): Vector3f = this[index.index]
-operator fun List<Vector3f>.get(index: FaceIndex): Vector3f = this[index.index]
-
 // z axis reversed
 fun landmarksToVector3(landmarks: List<Landmark>): List<Vector3f> =
     landmarks.map { Vector3f(it.x(), it.y(), -it.z()) }

@@ -1,12 +1,11 @@
-package com.yunho.motioncapture
+package com.yunho.motioncapture.pose
 
 import com.google.mediapipe.tasks.components.containers.Landmark
 import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
-import com.yunho.motioncapture.pose.FaceIndex
-import com.yunho.motioncapture.pose.HandIndex
-import com.yunho.motioncapture.pose.MainBodyIndex
-import com.yunho.motioncapture.pose.PoseRotation
-import com.yunho.motioncapture.pose.PoseSolverResult
+import com.yunho.motioncapture.LEFT
+import com.yunho.motioncapture.RIGHT
+import com.yunho.motioncapture.landmarksToVector3
+import com.yunho.motioncapture.normalizedLandmarksToVector3
 import org.joml.Quaternionf
 import org.joml.Vector3f
 import kotlin.math.PI
@@ -533,4 +532,8 @@ object PoseSolver {
         val openness = ((mouthHeight / mouthWidth) - 0.1f) / 0.5f
         return openness.coerceIn(0f, 0.7f)
     }
+
+    private operator fun List<Vector3f>.get(index: MainBodyIndex): Vector3f = this[index.index]
+    private operator fun List<Vector3f>.get(index: HandIndex): Vector3f = this[index.index]
+    private operator fun List<Vector3f>.get(index: FaceIndex): Vector3f = this[index.index]
 }

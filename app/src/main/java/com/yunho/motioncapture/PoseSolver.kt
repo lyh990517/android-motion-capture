@@ -50,37 +50,33 @@ fun quaternionToFloatArray(q: Quaternion): FloatArray {
 }
 
 class PoseSolverResultWrapper(private val poseSolverResult: PoseSolverResult) {
-    val poseToEntityMap: Map<Int, KMutableProperty1<PoseSolverResult, PoseRotation>> = mapOf(
-//        20 to PoseSolverResult::upperBody,
-//        148 to PoseSolverResult::lowerBody,
+    val poseToEntityMap: Map<String, KMutableProperty1<PoseSolverResult, PoseRotation>> = mapOf(
+        "上半身" to PoseSolverResult::upperBody,
+        "下半身" to PoseSolverResult::lowerBody,
 
-//        86 to PoseSolverResult::neck,
+        "首" to PoseSolverResult::neck,
 
-        55 to PoseSolverResult::leftUpperArm,
-        57 to PoseSolverResult::leftLowerArm,
+        "左腕" to PoseSolverResult::leftUpperArm,
+        "左ひじ" to PoseSolverResult::leftLowerArm,
 
-        23 to PoseSolverResult::rightUpperArm,
-        25 to PoseSolverResult::rightLowerArm,
+        "右腕" to PoseSolverResult::rightUpperArm,
+        "右ひじ" to PoseSolverResult::rightLowerArm,
 
-//        156 to PoseSolverResult::leftHip,
-//        151 to PoseSolverResult::rightHip,
-//
-//        158 to PoseSolverResult::leftFoot,
-//        153 to PoseSolverResult::rightFoot,
-//
-//        59 to PoseSolverResult::leftWrist,
-//        27 to PoseSolverResult::rightWrist,
-//
-//        145 to PoseSolverResult::leftEyeRotation,
-//        143 to PoseSolverResult::rightEyeRotation
+        "左足" to PoseSolverResult::leftHip,
+        "右足" to PoseSolverResult::rightHip,
+
+        "左足首" to PoseSolverResult::leftFoot,
+        "右足首" to PoseSolverResult::rightFoot,
+
+        "右足首" to PoseSolverResult::leftWrist,
+        "右手首" to PoseSolverResult::rightWrist,
+
+        "左目" to PoseSolverResult::leftEyeRotation,
+        "右目" to PoseSolverResult::rightEyeRotation
     )
 
-    fun getPoseRotationByIndex(index: Int): PoseRotation? {
-        return poseToEntityMap[index]?.get(poseSolverResult)
-    }
-
-    fun setPoseRotationByIndex(index: Int, rotation: PoseRotation) {
-        poseToEntityMap[index]?.set(poseSolverResult, rotation)
+    fun getPoseRotationByIndex(name: String): PoseRotation? {
+        return poseToEntityMap[name]?.get(poseSolverResult)
     }
 }
 

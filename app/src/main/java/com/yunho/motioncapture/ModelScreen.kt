@@ -1,5 +1,6 @@
 package com.yunho.motioncapture
 
+import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -62,11 +63,14 @@ fun ModelScreen(
             val wrap = PoseSolverResultWrapper(pose())
 
             kizunaAi.model.entities.toList().mapNotNull { entity ->
-                val rotation = wrap.getPoseRotationByIndex(entity)
+                val name = kizunaAi.model.getName(entity)
+                val rotation = wrap.getPoseRotationByIndex(name)
                 val poseQuaternion = rotation?.toQuaternion2()
                 if (poseQuaternion == null) {
                     null
                 } else {
+                    Log.e("123", name)
+
                     poseQuaternion to entity
                 }
             }.forEach { (poseQuaternion, entity) ->

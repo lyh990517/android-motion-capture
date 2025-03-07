@@ -7,7 +7,6 @@ import com.yunho.motioncapture.pose.HandIndex
 import com.yunho.motioncapture.pose.MainBodyIndex
 import com.yunho.motioncapture.pose.PoseRotation
 import com.yunho.motioncapture.pose.PoseSolverResult
-import io.github.sceneview.collision.Quaternion
 import org.joml.Quaternionf
 import org.joml.Vector3f
 import kotlin.math.PI

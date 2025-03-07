@@ -54,7 +54,7 @@ class PoseSolverResultWrapper(private val poseSolverResult: PoseSolverResult) {
         "上半身" to PoseSolverResult::upperBody,
 //        "下半身" to PoseSolverResult::lowerBody,
 
-//        "首" to PoseSolverResult::neck,
+        "首" to PoseSolverResult::neck,
 
         "左腕" to PoseSolverResult::leftUpperArm,
         "左ひじ" to PoseSolverResult::leftLowerArm,
@@ -616,30 +616,50 @@ object PoseSolver {
         return PoseRotation(quat.x, quat.y, quat.z, quat.w)
     }
 
-    private fun calculateNeckRotation(
+    fun calculateNeckRotation(
         nose: Vector3f,
         leftShoulder: Vector3f,
         rightShoulder: Vector3f,
         upperBodyRotation: PoseRotation
     ): PoseRotation {
+        // 1. 양쪽 어깨의 중간 위치를 계산하여 목의 위치로 사용합니다.
         val neckPos = Vector3f(leftShoulder).add(rightShoulder).mul(0.5f)
+
+        // 2. 목에서 코 방향 벡터 (정규화된)를 계산합니다.
         val neckDir = Vector3f(nose).sub(neckPos).normalize()
 
-        val upperBodyQuat = upperBodyRotation.toQuaternion()
-        val invUpper = Quaternionf(upperBodyQuat).conjugate()
-        val localNeckDir = invUpper.transform(Vector3f(neckDir))
+        // 3. 상체 회전(Rotation)을 단위 쿼터니언으로 변환 (이미 단위 쿼터니언이라고 가정)
+        val upperBodyQuat = Quaternionf(upperBodyRotation.toQuaternion())
 
+        // 4. 상체 쿼터니언의 역원을 이용해 neckDir을 로컬 좌표계로 변환합니다.
+        //    (단위 쿼터니언의 경우 역원은 켤레(conjugate)와 같습니다.)
+        val invUpperBodyQuat = Quaternionf(upperBodyQuat).conjugate()
+        val localNeckDir = Vector3f(neckDir)
+        invUpperBodyQuat.transform(localNeckDir)
+
+        // 5. 로컬 좌표계에서 forward 방향을 계산합니다.
+        //    여기서는 X, Z 성분을 반전하고 Y 성분은 0으로 만들어 사용합니다.
         val forwardDir = Vector3f(-localNeckDir.x, 0f, -localNeckDir.z).normalize()
+
+        // 6. tiltAngle을 (-localNeckDir.y)를 forwardDir의 길이(=1, 정규화됨)로 atan2 계산합니다.
         val tiltAngle = atan2(-localNeckDir.y, forwardDir.length())
-        val tiltOffset = -PI.toFloat() / 9f
+
+        // 7. tilt offset (-π/9)을 적용하여 조정된 tilt 각도를 계산합니다.
+        val tiltOffset = (-PI / 9).toFloat()
         val adjustedTiltAngle = tiltAngle + tiltOffset
 
-        //todo check
-        val horizontalQuat = Quaternionf().rotateTo(forwardDir.negate(), Vector3f(0f, 1f, 0f))
-        val tiltQuat = Quaternionf().fromAxisAngleRad(Vector3f(1f, 0f, 0f), adjustedTiltAngle)
+        // 8. lookAlong 함수를 이용해 horizontal 회전 쿼터니언을 생성합니다.
+        //    forwardDir을 바라보며, up 방향은 (0, 1, 0)입니다.
+        val horizontalQuat = Quaternionf().lookAlong(forwardDir, Vector3f(0f, 1f, 0f))
 
-        val quat = Quaternionf(horizontalQuat).mul(tiltQuat)
-        return PoseRotation(quat.x, quat.y, quat.z, quat.w)
+        // 9. X축을 기준으로 adjustedTiltAngle만큼 회전하는 tilt 쿼터니언을 생성합니다.
+        val tiltQuat = Quaternionf().rotateX(-adjustedTiltAngle)
+
+        // 10. horizontalQuat과 tiltQuat을 곱해 최종 목 회전 쿼터니언을 생성합니다.
+        val resultQuat = Quaternionf(horizontalQuat).mul(tiltQuat)
+
+        // 11. Rotation 객체로 감싸서 반환합니다.
+        return PoseRotation(resultQuat.x, resultQuat.y, resultQuat.z, resultQuat.w)
     }
 
     private fun calculateUpperArmRotation(

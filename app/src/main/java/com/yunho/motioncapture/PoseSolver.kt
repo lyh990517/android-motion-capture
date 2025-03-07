@@ -51,10 +51,10 @@ fun quaternionToFloatArray(q: Quaternion): FloatArray {
 
 class PoseSolverResultWrapper(private val poseSolverResult: PoseSolverResult) {
     val poseToEntityMap: Map<Int, KMutableProperty1<PoseSolverResult, PoseRotation>> = mapOf(
-        20 to PoseSolverResult::upperBody,
-        148 to PoseSolverResult::lowerBody,
+//        20 to PoseSolverResult::upperBody,
+//        148 to PoseSolverResult::lowerBody,
 
-        86 to PoseSolverResult::neck,
+//        86 to PoseSolverResult::neck,
 
         55 to PoseSolverResult::leftUpperArm,
         57 to PoseSolverResult::leftLowerArm,
@@ -62,17 +62,17 @@ class PoseSolverResultWrapper(private val poseSolverResult: PoseSolverResult) {
         23 to PoseSolverResult::rightUpperArm,
         25 to PoseSolverResult::rightLowerArm,
 
-        156 to PoseSolverResult::leftHip,
-        151 to PoseSolverResult::rightHip,
-
-        158 to PoseSolverResult::leftFoot,
-        153 to PoseSolverResult::rightFoot,
-
-        59 to PoseSolverResult::leftWrist,
-        27 to PoseSolverResult::rightWrist,
-
-        145 to PoseSolverResult::leftEyeRotation,
-        143 to PoseSolverResult::rightEyeRotation
+//        156 to PoseSolverResult::leftHip,
+//        151 to PoseSolverResult::rightHip,
+//
+//        158 to PoseSolverResult::leftFoot,
+//        153 to PoseSolverResult::rightFoot,
+//
+//        59 to PoseSolverResult::leftWrist,
+//        27 to PoseSolverResult::rightWrist,
+//
+//        145 to PoseSolverResult::leftEyeRotation,
+//        143 to PoseSolverResult::rightEyeRotation
     )
 
     fun getPoseRotationByIndex(index: Int): PoseRotation? {

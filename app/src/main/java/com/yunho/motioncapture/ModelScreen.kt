@@ -27,9 +27,7 @@ fun ModelScreen(
             ),
             scaleToUnits = 7f,
             autoAnimate = false
-        ).apply {
-            position = Position(x = 0f, y = 0f, z = 0f)
-        }
+        )
     }
 
     val cameraNode = rememberCameraNode(engine) {
@@ -64,19 +62,23 @@ fun ModelScreen(
 
             val wrap = PoseSolverResultWrapper(pose())
 
-            kizunaAi.model.entities.forEach { entity ->
-                val poseRotation = wrap.getPoseRotationByIndex(entity)
-                val poseQuaternion = poseRotation?.toQuaternion2()
-                val floatArray = poseQuaternion?.let { quat -> quaternionToFloatArray(quat) }
-
-                floatArray?.let { array ->
+            kizunaAi.model.entities.toList().mapNotNull { entity ->
+                val rotation = wrap.getPoseRotationByIndex(entity)
+                val poseQuaternion = rotation?.toQuaternion2()
+                if (poseQuaternion == null) {
+                    null
+                } else {
                     Log.e("123", "recognizedPart: ${kizunaAi.model.getName(entity)}")
 
-                    kizunaAi.model.engine.transformManager.setTransform(
-                        entity,
-                        array
-                    )
+                    poseQuaternion to entity
                 }
+            }.forEach { (poseQuaternion, entity) ->
+                val floatArray = quaternionToFloatArray(poseQuaternion)
+
+                kizunaAi.model.engine.transformManager.setTransform(
+                    entity,
+                    floatArray
+                )
             }
         }
     )

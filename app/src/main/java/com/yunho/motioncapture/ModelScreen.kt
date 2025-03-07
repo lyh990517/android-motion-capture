@@ -1,12 +1,10 @@
 package com.yunho.motioncapture
 
-import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import io.github.sceneview.Scene
 import io.github.sceneview.math.Position
-import io.github.sceneview.math.Rotation
 import io.github.sceneview.node.ModelNode
 import io.github.sceneview.rememberCameraManipulator
 import io.github.sceneview.rememberCameraNode
@@ -69,8 +67,6 @@ fun ModelScreen(
                 if (poseQuaternion == null) {
                     null
                 } else {
-                    Log.e("123", "recognizedPart: ${kizunaAi.model.getName(entity)}")
-
                     poseQuaternion to entity
                 }
             }.forEach { (poseQuaternion, entity) ->

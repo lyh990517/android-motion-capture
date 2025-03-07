@@ -131,7 +131,46 @@ data class PoseSolverResult(
     var leftEyeOpenness: Float = 0f,
     var rightEyeOpenness: Float = 0f,
     var mouthOpenness: Float = 0f
-)
+) {
+    override fun toString(): String {
+        return """
+            PoseSolverResult(
+                ─── Body ───
+                upperBody: $upperBody
+                lowerBody: $lowerBody
+                neck: $neck
+                
+                ─── Hips & Feet ───
+                leftHip: $leftHip, rightHip: $rightHip
+                leftFoot: $leftFoot, rightFoot: $rightFoot
+                
+                ─── Arms ───
+                leftUpperArm: $leftUpperArm, rightUpperArm: $rightUpperArm
+                leftLowerArm: $leftLowerArm, rightLowerArm: $rightLowerArm
+                leftWrist: $leftWrist, rightWrist: $rightWrist
+                
+                ─── Hands (Left) ───
+                leftThumbCMC: $leftThumbCMC, leftThumbMCP: $leftThumbMCP
+                leftIndexFingerMCP: $leftIndexFingerMCP, leftIndexFingerPIP: $leftIndexFingerPIP, leftIndexFingerDIP: $leftIndexFingerDIP
+                leftMiddleFingerMCP: $leftMiddleFingerMCP, leftMiddleFingerPIP: $leftMiddleFingerPIP, leftMiddleFingerDIP: $leftMiddleFingerDIP
+                leftRingFingerMCP: $leftRingFingerMCP, leftRingFingerPIP: $leftRingFingerPIP, leftRingFingerDIP: $leftRingFingerDIP
+                leftPinkyFingerMCP: $leftPinkyFingerMCP, leftPinkyFingerPIP: $leftPinkyFingerPIP, leftPinkyFingerDIP: $leftPinkyFingerDIP
+                
+                ─── Hands (Right) ───
+                rightThumbCMC: $rightThumbCMC, rightThumbMCP: $rightThumbMCP
+                rightIndexFingerMCP: $rightIndexFingerMCP, rightIndexFingerPIP: $rightIndexFingerPIP, rightIndexFingerDIP: $rightIndexFingerDIP
+                rightMiddleFingerMCP: $rightMiddleFingerMCP, rightMiddleFingerPIP: $rightMiddleFingerPIP, rightMiddleFingerDIP: $rightMiddleFingerDIP
+                rightRingFingerMCP: $rightRingFingerMCP, rightRingFingerPIP: $rightRingFingerPIP, rightRingFingerDIP: $rightRingFingerDIP
+                rightPinkyFingerMCP: $rightPinkyFingerMCP, rightPinkyFingerPIP: $rightPinkyFingerPIP, rightPinkyFingerDIP: $rightPinkyFingerDIP
+                
+                ─── Facial Features ───
+                leftEyeRotation: $leftEyeRotation, rightEyeRotation: $rightEyeRotation
+                leftEyeOpenness: $leftEyeOpenness, rightEyeOpenness: $rightEyeOpenness
+                mouthOpenness: $mouthOpenness
+            )
+        """.trimIndent()
+    }
+}
 
 enum class MainBodyIndex(val index: Int) {
     Nose(0),

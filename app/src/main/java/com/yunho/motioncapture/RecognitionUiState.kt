@@ -3,6 +3,7 @@ package com.yunho.motioncapture
 import android.app.Application
 import android.graphics.Bitmap
 import android.graphics.Matrix
+import android.util.Log
 import androidx.camera.core.ImageAnalysis
 import androidx.lifecycle.AndroidViewModel
 import com.google.mediapipe.framework.image.BitmapImageBuilder
@@ -38,6 +39,7 @@ class RecognitionViewModel(application: Application) : AndroidViewModel(applicat
                 )
 
                 poseResultState.update { poseResult }
+                Log.e("123", poseResult.toString())
             }
 
         val options = optionsBuilder.build()

@@ -3,6 +3,8 @@ package com.yunho.motioncapture
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.yunho.motioncapture.pose.PoseRotationExtractor
+import com.yunho.motioncapture.pose.PoseSolverResult
 import io.github.sceneview.Scene
 import io.github.sceneview.math.Position
 import io.github.sceneview.node.ModelNode
@@ -58,19 +60,19 @@ fun ModelScreen(
         onFrame = {
             cameraNode.lookAt(kizunaAi)
 
-            val wrap = PoseSolverResultWrapper(pose())
+            val wrap = PoseRotationExtractor(pose())
 
             kizunaAi.model.entities.toList().mapNotNull { entity ->
                 val name = kizunaAi.model.getName(entity)
-                val rotation = wrap.getPoseRotationByIndex(name)
-                val poseQuaternion = rotation?.toQuaternion2()
+                val rotation = wrap.extractByName(name)
+                val poseQuaternion = rotation?.toQuaternion()
                 if (poseQuaternion == null) {
                     null
                 } else {
                     poseQuaternion to entity
                 }
             }.forEach { (poseQuaternion, entity) ->
-                val floatArray = quaternionToFloatArray(poseQuaternion)
+                val floatArray = poseQuaternion.toFloatArray()
 
                 kizunaAi.model.engine.transformManager.setTransform(
                     entity,

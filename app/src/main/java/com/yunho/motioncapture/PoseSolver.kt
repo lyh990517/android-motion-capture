@@ -2,295 +2,18 @@ package com.yunho.motioncapture
 
 import com.google.mediapipe.tasks.components.containers.Landmark
 import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
+import com.yunho.motioncapture.pose.FaceIndex
+import com.yunho.motioncapture.pose.HandIndex
+import com.yunho.motioncapture.pose.MainBodyIndex
+import com.yunho.motioncapture.pose.PoseRotation
+import com.yunho.motioncapture.pose.PoseSolverResult
 import io.github.sceneview.collision.Quaternion
-import io.github.sceneview.math.Rotation
 import org.joml.Quaternionf
 import org.joml.Vector3f
 import kotlin.math.PI
 import kotlin.math.acos
 import kotlin.math.atan2
 import kotlin.math.min
-import kotlin.reflect.KMutableProperty1
-
-data class PoseRotation(val x: Float, val y: Float, val z: Float, val w: Float) {
-    companion object {
-        fun default() = PoseRotation(0f, 0f, 0f, 1f)
-
-        fun PoseRotation.toRotation() = Rotation(x, y, z)
-    }
-
-    fun toQuaternion(): Quaternionf = Quaternionf(x, y, z, w)
-
-    fun toQuaternion2(): Quaternion = Quaternion(x, y, z, w)
-}
-
-fun quaternionToFloatArray(q: Quaternion): FloatArray {
-    val w = q.w
-    val x = q.x
-    val y = q.y
-    val z = q.z
-    return floatArrayOf(
-        1f - 2f * (y * y + z * z),  // m00
-        2f * x * y + 2f * w * z,      // m10
-        2f * x * z - 2f * w * y,      // m20
-        0f,                         // m30
-
-        2f * x * y - 2f * w * z,      // m01
-        1f - 2f * (x * x + z * z),    // m11
-        2f * y * z + 2f * w * x,      // m21
-        0f,                         // m31
-
-        2f * x * z + 2f * w * y,      // m02
-        2f * y * z - 2f * w * x,      // m12
-        1f - 2f * (x * x + y * y),    // m22
-        0f,                         // m32
-
-        0f, 0f, 0f, 1f              // m03, m13, m23, m33
-    )
-}
-
-class PoseSolverResultWrapper(private val poseSolverResult: PoseSolverResult) {
-    private val poseToEntityMap: Map<String, KMutableProperty1<PoseSolverResult, PoseRotation>> = mapOf(
-        "上半身" to PoseSolverResult::upperBody,
-        "下半身" to PoseSolverResult::lowerBody,
-
-//        "首" to PoseSolverResult::neck,
-
-        "左腕" to PoseSolverResult::leftUpperArm,
-        "左ひじ" to PoseSolverResult::leftLowerArm,
-
-        "右腕" to PoseSolverResult::rightUpperArm,
-        "右ひじ" to PoseSolverResult::rightLowerArm,
-
-        "左足" to PoseSolverResult::leftHip,
-        "右足" to PoseSolverResult::rightHip,
-
-//        "左足首" to PoseSolverResult::leftFoot,
-//        "右足首" to PoseSolverResult::rightFoot,
-
-        "左手首" to PoseSolverResult::leftWrist,
-        "右手首" to PoseSolverResult::rightWrist,
-
-//        "左目" to PoseSolverResult::leftEyeRotation,
-//        "右目" to PoseSolverResult::rightEyeRotation,
-
-        "左親指１" to PoseSolverResult::leftThumbCMC,
-        "左親指２" to PoseSolverResult::leftThumbMCP,
-        "左人指１" to PoseSolverResult::leftIndexFingerMCP,
-        "左人指２" to PoseSolverResult::leftIndexFingerPIP,
-        "左人指３" to PoseSolverResult::leftIndexFingerDIP,
-        "左中指１" to PoseSolverResult::leftMiddleFingerMCP,
-        "左中指２" to PoseSolverResult::leftMiddleFingerPIP,
-        "左中指３" to PoseSolverResult::leftMiddleFingerDIP,
-        "左薬指１" to PoseSolverResult::leftRingFingerMCP,
-        "左薬指２" to PoseSolverResult::leftRingFingerPIP,
-        "左薬指３" to PoseSolverResult::leftRingFingerDIP,
-        "左小指１" to PoseSolverResult::leftPinkyFingerMCP,
-        "左小指２" to PoseSolverResult::leftPinkyFingerPIP,
-        "左小指３" to PoseSolverResult::leftPinkyFingerDIP,
-
-        "右親指１" to PoseSolverResult::rightThumbCMC,
-        "右親指２" to PoseSolverResult::rightThumbMCP,
-        "右人指１" to PoseSolverResult::rightIndexFingerMCP,
-        "右人指２" to PoseSolverResult::rightIndexFingerPIP,
-        "右人指３" to PoseSolverResult::rightIndexFingerDIP,
-        "右中指１" to PoseSolverResult::rightMiddleFingerMCP,
-        "右中指２" to PoseSolverResult::rightMiddleFingerPIP,
-        "右中指３" to PoseSolverResult::rightMiddleFingerDIP,
-        "右薬指１" to PoseSolverResult::rightRingFingerMCP,
-        "右薬指２" to PoseSolverResult::rightRingFingerPIP,
-        "右薬指３" to PoseSolverResult::rightRingFingerDIP,
-        "右小指１" to PoseSolverResult::rightPinkyFingerMCP,
-        "右小指２" to PoseSolverResult::rightPinkyFingerPIP,
-        "右小指３" to PoseSolverResult::rightPinkyFingerDIP
-    )
-
-    fun getPoseRotationByIndex(name: String): PoseRotation? {
-        return poseToEntityMap[name]?.get(poseSolverResult)
-    }
-}
-
-data class PoseSolverResult(
-    var upperBody: PoseRotation = PoseRotation.default(),
-    var lowerBody: PoseRotation = PoseRotation.default(),
-    var neck: PoseRotation = PoseRotation.default(),
-    var leftHip: PoseRotation = PoseRotation.default(),
-    var rightHip: PoseRotation = PoseRotation.default(),
-    var leftFoot: PoseRotation = PoseRotation.default(),
-    var rightFoot: PoseRotation = PoseRotation.default(),
-    var leftUpperArm: PoseRotation = PoseRotation.default(),
-    var rightUpperArm: PoseRotation = PoseRotation.default(),
-    var leftLowerArm: PoseRotation = PoseRotation.default(),
-    var rightLowerArm: PoseRotation = PoseRotation.default(),
-    var leftWrist: PoseRotation = PoseRotation.default(),
-    var rightWrist: PoseRotation = PoseRotation.default(),
-    var leftThumbCMC: PoseRotation = PoseRotation.default(),
-    var leftThumbMCP: PoseRotation = PoseRotation.default(),
-    var leftIndexFingerMCP: PoseRotation = PoseRotation.default(),
-    var leftIndexFingerPIP: PoseRotation = PoseRotation.default(),
-    var leftIndexFingerDIP: PoseRotation = PoseRotation.default(),
-    var leftMiddleFingerMCP: PoseRotation = PoseRotation.default(),
-    var leftMiddleFingerPIP: PoseRotation = PoseRotation.default(),
-    var leftMiddleFingerDIP: PoseRotation = PoseRotation.default(),
-    var leftRingFingerMCP: PoseRotation = PoseRotation.default(),
-    var leftRingFingerPIP: PoseRotation = PoseRotation.default(),
-    var leftRingFingerDIP: PoseRotation = PoseRotation.default(),
-    var leftPinkyFingerMCP: PoseRotation = PoseRotation.default(),
-    var leftPinkyFingerPIP: PoseRotation = PoseRotation.default(),
-    var leftPinkyFingerDIP: PoseRotation = PoseRotation.default(),
-    var rightThumbCMC: PoseRotation = PoseRotation.default(),
-    var rightThumbMCP: PoseRotation = PoseRotation.default(),
-    var rightIndexFingerMCP: PoseRotation = PoseRotation.default(),
-    var rightIndexFingerPIP: PoseRotation = PoseRotation.default(),
-    var rightIndexFingerDIP: PoseRotation = PoseRotation.default(),
-    var rightMiddleFingerMCP: PoseRotation = PoseRotation.default(),
-    var rightMiddleFingerPIP: PoseRotation = PoseRotation.default(),
-    var rightMiddleFingerDIP: PoseRotation = PoseRotation.default(),
-    var rightRingFingerMCP: PoseRotation = PoseRotation.default(),
-    var rightRingFingerPIP: PoseRotation = PoseRotation.default(),
-    var rightRingFingerDIP: PoseRotation = PoseRotation.default(),
-    var rightPinkyFingerMCP: PoseRotation = PoseRotation.default(),
-    var rightPinkyFingerPIP: PoseRotation = PoseRotation.default(),
-    var rightPinkyFingerDIP: PoseRotation = PoseRotation.default(),
-    var leftEyeRotation: PoseRotation = PoseRotation.default(),
-    var rightEyeRotation: PoseRotation = PoseRotation.default(),
-    var leftEyeOpenness: Float = 0f,
-    var rightEyeOpenness: Float = 0f,
-    var mouthOpenness: Float = 0f
-) {
-    override fun toString(): String {
-        return """
-            PoseSolverResult(
-                ─── Body ───
-                upperBody: $upperBody
-                lowerBody: $lowerBody
-                neck: $neck
-                
-                ─── Hips & Feet ───
-                leftHip: $leftHip, rightHip: $rightHip
-                leftFoot: $leftFoot, rightFoot: $rightFoot
-                
-                ─── Arms ───
-                leftUpperArm: $leftUpperArm, rightUpperArm: $rightUpperArm
-                leftLowerArm: $leftLowerArm, rightLowerArm: $rightLowerArm
-                leftWrist: $leftWrist, rightWrist: $rightWrist
-                
-                ─── Hands (Left) ───
-                leftThumbCMC: $leftThumbCMC, leftThumbMCP: $leftThumbMCP
-                leftIndexFingerMCP: $leftIndexFingerMCP, leftIndexFingerPIP: $leftIndexFingerPIP, leftIndexFingerDIP: $leftIndexFingerDIP
-                leftMiddleFingerMCP: $leftMiddleFingerMCP, leftMiddleFingerPIP: $leftMiddleFingerPIP, leftMiddleFingerDIP: $leftMiddleFingerDIP
-                leftRingFingerMCP: $leftRingFingerMCP, leftRingFingerPIP: $leftRingFingerPIP, leftRingFingerDIP: $leftRingFingerDIP
-                leftPinkyFingerMCP: $leftPinkyFingerMCP, leftPinkyFingerPIP: $leftPinkyFingerPIP, leftPinkyFingerDIP: $leftPinkyFingerDIP
-                
-                ─── Hands (Right) ───
-                rightThumbCMC: $rightThumbCMC, rightThumbMCP: $rightThumbMCP
-                rightIndexFingerMCP: $rightIndexFingerMCP, rightIndexFingerPIP: $rightIndexFingerPIP, rightIndexFingerDIP: $rightIndexFingerDIP
-                rightMiddleFingerMCP: $rightMiddleFingerMCP, rightMiddleFingerPIP: $rightMiddleFingerPIP, rightMiddleFingerDIP: $rightMiddleFingerDIP
-                rightRingFingerMCP: $rightRingFingerMCP, rightRingFingerPIP: $rightRingFingerPIP, rightRingFingerDIP: $rightRingFingerDIP
-                rightPinkyFingerMCP: $rightPinkyFingerMCP, rightPinkyFingerPIP: $rightPinkyFingerPIP, rightPinkyFingerDIP: $rightPinkyFingerDIP
-                
-                ─── Facial Features ───
-                leftEyeRotation: $leftEyeRotation, rightEyeRotation: $rightEyeRotation
-                leftEyeOpenness: $leftEyeOpenness, rightEyeOpenness: $rightEyeOpenness
-                mouthOpenness: $mouthOpenness
-            )
-        """.trimIndent()
-    }
-}
-
-enum class MainBodyIndex(val index: Int) {
-    Nose(0),
-    LeftEyeInner(1),
-    LeftEye(2),
-    LeftEyeOuter(3),
-    RightEyeInner(4),
-    RightEye(5),
-    RightEyeOuter(6),
-    LeftEar(7),
-    RightEar(8),
-    MouthLeft(9),
-    MouthRight(10),
-    LeftShoulder(11),
-    RightShoulder(12),
-    LeftElbow(13),
-    RightElbow(14),
-    LeftWrist(15),
-    RightWrist(16),
-    LeftPinky(17),
-    RightPinky(18),
-    LeftIndex(19),
-    RightIndex(20),
-    LeftThumb(21),
-    RightThumb(22),
-    LeftHip(23),
-    RightHip(24),
-    LeftKnee(25),
-    RightKnee(26),
-    LeftAnkle(27),
-    RightAnkle(28),
-    LeftHeel(29),
-    RightHeel(30),
-    LeftFootIndex(31),
-    RightFootIndex(32)
-}
-
-enum class HandIndex(val index: Int) {
-    Wrist(0),
-    ThumbCMC(1),
-    ThumbMCP(2),
-    ThumbIP(3),
-    ThumbTip(4),
-    IndexMCP(5),
-    IndexPIP(6),
-    IndexDIP(7),
-    IndexTip(8),
-    MiddleMCP(9),
-    MiddlePIP(10),
-    MiddleDIP(11),
-    MiddleTip(12),
-    RingMCP(13),
-    RingPIP(14),
-    RingDIP(15),
-    RingTip(16),
-    PinkyMCP(17),
-    PinkyPIP(18),
-    PinkyDIP(19),
-    PinkyTip(20)
-}
-
-enum class FaceIndex(val index: Int) {
-    LeftEyeUpper(159),
-    LeftEyeLower(145),
-    LeftEyeLeft(33),
-    LeftEyeRight(133),
-    LeftEyeIris(468),
-    RightEyeUpper(386),
-    RightEyeLower(374),
-    RightEyeLeft(362),
-    RightEyeRight(263),
-    RightEyeIris(473),
-    UpperLipTop(13),
-    LowerLipBottom(14),
-    MouthLeft(61),
-    MouthRight(291),
-    UpperLipCenter(0),
-    LowerLipCenter(17),
-    LeftEar(234),
-    RightEar(454)
-}
-
-operator fun List<Vector3f>.get(index: MainBodyIndex): Vector3f = this[index.index]
-operator fun List<Vector3f>.get(index: HandIndex): Vector3f = this[index.index]
-operator fun List<Vector3f>.get(index: FaceIndex): Vector3f = this[index.index]
-
-const val LEFT = 0
-const val RIGHT = 1
-
-fun landmarksToVector3(landmarks: List<Landmark>): List<Vector3f> =
-    landmarks.map { Vector3f(it.x(), it.y(), -it.z()) }
-
-fun normalizedLandmarksToVector3(landmarks: List<NormalizedLandmark>): List<Vector3f> =
-    landmarks.map { Vector3f(it.x(), it.y(), -it.z()) }
 
 object PoseSolver {
     private val defaultDirections: HashMap<String, Vector3f> = hashMapOf(
@@ -624,7 +347,7 @@ object PoseSolver {
     ): PoseRotation {
         val neckPos = Vector3f(leftShoulder).add(rightShoulder).mul(0.5f)
         val neckDir = Vector3f(nose).sub(neckPos).normalize()
-        val upperBodyQuat = Quaternionf(upperBodyRotation.toQuaternion())
+        val upperBodyQuat = Quaternionf(upperBodyRotation.toQuaternionf())
         val invUpperBodyQuat = Quaternionf(upperBodyQuat).conjugate()
         val localNeckDir = Vector3f(neckDir)
 
@@ -648,7 +371,7 @@ object PoseSolver {
         side: Int
     ): PoseRotation {
         val armDir = Vector3f(elbow).sub(shoulder).normalize().also { it.y = -it.y }
-        val upperBodyQuat = upperBodyRotation.toQuaternion()
+        val upperBodyQuat = upperBodyRotation.toQuaternionf()
         val invUpper = Quaternionf(upperBodyQuat).conjugate()
         val localArmDir = invUpper.transform(Vector3f(armDir))
 
@@ -668,7 +391,7 @@ object PoseSolver {
         side: Int
     ): PoseRotation {
         val lowerArmDir = Vector3f(wrist).sub(elbow).normalize().also { it.y = -it.y }
-        val upperArmQuat = upperArmRotation.toQuaternion()
+        val upperArmQuat = upperArmRotation.toQuaternionf()
         val invUpperArm = Quaternionf(upperArmQuat).conjugate()
         val localLowerArmDir = invUpperArm.transform(Vector3f(lowerArmDir))
 
@@ -687,7 +410,7 @@ object PoseSolver {
         lowerBodyRotation: PoseRotation
     ): PoseRotation {
         val legDir = Vector3f(knee).sub(hip).normalize().also { it.y = -it.y }
-        val lowerBodyQuat = lowerBodyRotation.toQuaternion()
+        val lowerBodyQuat = lowerBodyRotation.toQuaternionf()
         val invLowerBody = Quaternionf(lowerBodyQuat).conjugate()
         val localLegDir = invLowerBody.transform(Vector3f(legDir))
 
@@ -708,7 +431,7 @@ object PoseSolver {
         side: Int
     ): PoseRotation {
         val wristDir = Vector3f(middleFinger).sub(wrist).normalize().also { it.y = -it.y }
-        val lowerArmQuat = lowerArmRotation.toQuaternion()
+        val lowerArmQuat = lowerArmRotation.toQuaternionf()
         val invLowerArm = Quaternionf(lowerArmQuat).conjugate()
         val localWristDir = invLowerArm.transform(Vector3f(wristDir))
 
@@ -728,7 +451,7 @@ object PoseSolver {
         side: Int
     ): PoseRotation {
         val jointDir = Vector3f(nextJoint).sub(currentJoint).normalize().also { it.y = -it.y }
-        val parentQuat = parentRotation.toQuaternion()
+        val parentQuat = parentRotation.toQuaternionf()
         val invParent = Quaternionf(parentQuat).conjugate()
         val localJointDir = invParent.transform(Vector3f(jointDir))
 
@@ -744,7 +467,7 @@ object PoseSolver {
         side: Int
     ): PoseRotation {
         val jointDir = Vector3f(nextJoint).sub(currentJoint).normalize().also { it.y = -it.y }
-        val parentQuat = parentRotation.toQuaternion()
+        val parentQuat = parentRotation.toQuaternionf()
         val invParent = Quaternionf(parentQuat).conjugate()
         val localJointDir = invParent.transform(Vector3f(jointDir))
 

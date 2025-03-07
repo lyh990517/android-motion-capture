@@ -1,6 +1,5 @@
 package com.yunho.motioncapture
 
-import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -28,10 +27,6 @@ fun ModelScreen() {
             autoAnimate = false
         ).apply {
             playAnimation(0, 1f, true)
-
-            renderableNodes.forEach { node ->
-                Log.e("123", "${node.name}")
-            }
             position = Position(x = 0f, y = 0f, z = 0f)
         }
     }

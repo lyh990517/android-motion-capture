@@ -11,7 +11,6 @@ import com.google.mediapipe.tasks.vision.core.RunningMode
 import com.google.mediapipe.tasks.vision.holisticlandmarker.HolisticLandmarker
 import com.google.mediapipe.tasks.vision.holisticlandmarker.HolisticLandmarker.HolisticLandmarkerOptions
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.update
 import kotlin.math.max
 
 data class RecognitionUiState(
@@ -29,11 +28,10 @@ class RecognitionViewModel(application: Application) : AndroidViewModel(applicat
             .setRunningMode(RunningMode.LIVE_STREAM)
             .setBaseOptions(baseOptions)
             .setResultListener { result, _ ->
-                uiState.update {
-                    it.copy(
-                        recognized = result.faceLandmarks().getOrNull(0).toString()
-                    )
-                }
+                val mainBody = result.poseWorldLandmarks()
+                val leftHand = result.leftHandWorldLandmarks()
+                val rightHand = result.rightHandWorldLandmarks()
+                val face = result.faceLandmarks()
             }
 
         val options = optionsBuilder.build()

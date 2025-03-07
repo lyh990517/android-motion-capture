@@ -52,9 +52,9 @@ fun quaternionToFloatArray(q: Quaternion): FloatArray {
 class PoseSolverResultWrapper(private val poseSolverResult: PoseSolverResult) {
     val poseToEntityMap: Map<String, KMutableProperty1<PoseSolverResult, PoseRotation>> = mapOf(
         "上半身" to PoseSolverResult::upperBody,
-//        "下半身" to PoseSolverResult::lowerBody,
+        "下半身" to PoseSolverResult::lowerBody,
 
-        "首" to PoseSolverResult::neck,
+//        "首" to PoseSolverResult::neck,
 
         "左腕" to PoseSolverResult::leftUpperArm,
         "左ひじ" to PoseSolverResult::leftLowerArm,
@@ -62,17 +62,17 @@ class PoseSolverResultWrapper(private val poseSolverResult: PoseSolverResult) {
         "右腕" to PoseSolverResult::rightUpperArm,
         "右ひじ" to PoseSolverResult::rightLowerArm,
 
-//        "左足" to PoseSolverResult::leftHip,
-//        "右足" to PoseSolverResult::rightHip,
-//
+        "左足" to PoseSolverResult::leftHip,
+        "右足" to PoseSolverResult::rightHip,
+
 //        "左足首" to PoseSolverResult::leftFoot,
 //        "右足首" to PoseSolverResult::rightFoot,
-//
+
         "左手首" to PoseSolverResult::leftWrist,
         "右手首" to PoseSolverResult::rightWrist,
-//
-//        "左目" to PoseSolverResult::leftEyeRotation,
-//        "右目" to PoseSolverResult::rightEyeRotation
+
+        "左目" to PoseSolverResult::leftEyeRotation,
+        "右目" to PoseSolverResult::rightEyeRotation,
 
         "左親指１" to PoseSolverResult::leftThumbCMC,
         "左親指２" to PoseSolverResult::leftThumbMCP,

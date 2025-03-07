@@ -24,7 +24,7 @@ fun ModelScreen(
             modelInstance = modelLoader.createModelInstance(
                 assetFileLocation = "models/BoothScene.glb"
             ),
-            scaleToUnits = 7f,
+            scaleToUnits = 1f,
             autoAnimate = false
         )
     }

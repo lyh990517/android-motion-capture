@@ -50,7 +50,7 @@ fun quaternionToFloatArray(q: Quaternion): FloatArray {
 }
 
 class PoseSolverResultWrapper(private val poseSolverResult: PoseSolverResult) {
-    val poseToEntityMap: Map<String, KMutableProperty1<PoseSolverResult, PoseRotation>> = mapOf(
+    private val poseToEntityMap: Map<String, KMutableProperty1<PoseSolverResult, PoseRotation>> = mapOf(
         "上半身" to PoseSolverResult::upperBody,
         "下半身" to PoseSolverResult::lowerBody,
 

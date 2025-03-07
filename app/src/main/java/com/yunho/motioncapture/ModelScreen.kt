@@ -1,5 +1,6 @@
 package com.yunho.motioncapture
 
+import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -69,6 +70,8 @@ fun ModelScreen(
                 val floatArray = poseQuaternion?.let { quat -> quaternionToFloatArray(quat) }
 
                 floatArray?.let { array ->
+                    Log.e("123", "recognizedPart: ${kizunaAi.model.getName(entity)}")
+
                     kizunaAi.model.engine.transformManager.setTransform(
                         entity,
                         array

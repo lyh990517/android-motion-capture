@@ -15,7 +15,7 @@ import io.github.sceneview.rememberModelLoader
 import io.github.sceneview.rememberNode
 
 @Composable
-fun ModelScreen(
+fun MotionCaptureScreen(
     pose: () -> PoseSolverResult
 ) {
     val engine = rememberEngine()

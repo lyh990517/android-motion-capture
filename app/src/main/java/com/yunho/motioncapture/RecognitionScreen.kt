@@ -13,5 +13,5 @@ fun RecognitionScreen(
 
     CameraAnalyzer(viewModel.imageAnalyzer)
 
-    ModelScreen { poseResult }
+    MotionCaptureScreen { poseResult }
 }

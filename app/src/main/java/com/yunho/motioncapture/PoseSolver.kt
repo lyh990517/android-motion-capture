@@ -71,8 +71,8 @@ class PoseSolverResultWrapper(private val poseSolverResult: PoseSolverResult) {
         "左手首" to PoseSolverResult::leftWrist,
         "右手首" to PoseSolverResult::rightWrist,
 
-        "左目" to PoseSolverResult::leftEyeRotation,
-        "右目" to PoseSolverResult::rightEyeRotation,
+//        "左目" to PoseSolverResult::leftEyeRotation,
+//        "右目" to PoseSolverResult::rightEyeRotation,
 
         "左親指１" to PoseSolverResult::leftThumbCMC,
         "左親指２" to PoseSolverResult::leftThumbMCP,

@@ -3,8 +3,8 @@ package com.yunho.motioncapture
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.yunho.motioncapture.pose.PoseRotationExtractor
 import com.yunho.motioncapture.pose.PoseSolverResult
+import com.yunho.motioncapture.pose.extractPoseByName
 import io.github.sceneview.Scene
 import io.github.sceneview.math.Position
 import io.github.sceneview.node.ModelNode
@@ -57,24 +57,24 @@ fun ModelScreen(
         onFrame = {
             cameraNode.lookAt(sampleModel)
 
-            val extractor = PoseRotationExtractor(pose())
+            with(sampleModel.model) {
+                entities.toList().mapNotNull { entity ->
+                    val name = getName(entity)
+                    val poseRotation = pose().extractPoseByName(name)
+                    val poseQuaternion = poseRotation?.toQuaternion()
+                    if (poseQuaternion == null) {
+                        null
+                    } else {
+                        poseQuaternion to entity
+                    }
+                }.forEach { (poseQuaternion, entity) ->
+                    val floatArray = poseQuaternion.toFloatArray()
 
-            sampleModel.model.entities.toList().mapNotNull { entity ->
-                val name = sampleModel.model.getName(entity)
-                val poseRotation = extractor.extractByName(name)
-                val poseQuaternion = poseRotation?.toQuaternion()
-                if (poseQuaternion == null) {
-                    null
-                } else {
-                    poseQuaternion to entity
+                    engine.transformManager.setTransform(
+                        entity,
+                        floatArray
+                    )
                 }
-            }.forEach { (poseQuaternion, entity) ->
-                val floatArray = poseQuaternion.toFloatArray()
-
-                sampleModel.model.engine.transformManager.setTransform(
-                    entity,
-                    floatArray
-                )
             }
         }
     )

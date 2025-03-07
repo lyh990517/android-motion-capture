@@ -68,6 +68,8 @@ dependencies {
     implementation(libs.androidx.camera.camera2)
     implementation(libs.androidx.camera.video)
     implementation(libs.androidx.camera.extensions)
+    
+    implementation("org.joml:joml:1.10.5")
 
     implementation (libs.arsceneview)
 }

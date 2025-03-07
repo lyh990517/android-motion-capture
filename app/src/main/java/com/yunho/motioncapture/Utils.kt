@@ -2,9 +2,6 @@ package com.yunho.motioncapture
 
 import com.google.mediapipe.tasks.components.containers.Landmark
 import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
-import com.yunho.motioncapture.pose.FaceIndex
-import com.yunho.motioncapture.pose.HandIndex
-import com.yunho.motioncapture.pose.MainBodyIndex
 import io.github.sceneview.collision.Quaternion
 import org.joml.Vector3f
 

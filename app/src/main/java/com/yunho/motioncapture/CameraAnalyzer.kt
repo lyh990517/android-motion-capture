@@ -20,9 +20,16 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.LifecycleOwner
 
 @Composable
-fun CameraEffect(
-    imageAnalysisUseCase: ImageAnalysis?
+fun CameraAnalyzer(
+    imageAnalyzer: ImageAnalysis.Analyzer
 ) {
+    val context = LocalContext.current
+    val imageAnalysisUseCase = remember {
+        ImageAnalysis.Builder().build().apply {
+            setAnalyzer(context.mainExecutor, imageAnalyzer)
+        }
+    }
+
     val previewUseCase = remember { androidx.camera.core.Preview.Builder().build() }
 
     var cameraProvider by remember { mutableStateOf<ProcessCameraProvider?>(null) }

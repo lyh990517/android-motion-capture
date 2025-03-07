@@ -29,7 +29,7 @@ fun WithPermission(
     }
 
     if (!permissionGranted) {
-        PermissionRequiredScreen(modifier = modifier, permission = permission) { permissionGranted = true }
+        PermissionScreen(modifier = modifier, permission = permission) { permissionGranted = true }
     }
     else {
         Surface(modifier = modifier) {
@@ -39,7 +39,7 @@ fun WithPermission(
 }
 
 @Composable
-fun PermissionRequiredScreen(modifier: Modifier = Modifier, permission: String, onPermissionGranted: () -> Unit) {
+fun PermissionScreen(modifier: Modifier = Modifier, permission: String, onPermissionGranted: () -> Unit) {
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { granted ->

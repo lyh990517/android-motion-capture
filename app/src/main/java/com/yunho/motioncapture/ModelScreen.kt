@@ -20,8 +20,7 @@ fun ModelScreen(
 ) {
     val engine = rememberEngine()
     val modelLoader = rememberModelLoader(engine)
-
-    val kizunaAi = rememberNode {
+    val sampleModel = rememberNode {
         ModelNode(
             modelInstance = modelLoader.createModelInstance(
                 assetFileLocation = "models/BoothScene.glb"
@@ -30,18 +29,16 @@ fun ModelScreen(
             autoAnimate = false
         )
     }
-
-    val cameraNode = rememberCameraNode(engine) {
-        position = Position(y = 2f, z = 1.0f)
-        lookAt(kizunaAi)
-    }
-
-    val sky = rememberNode {
+    val sampleEnvironment = rememberNode {
         ModelNode(
             modelInstance = modelLoader.createModelInstance(
                 assetFileLocation = "models/skybox_anime_sky.glb"
             )
         )
+    }
+    val cameraNode = rememberCameraNode(engine) {
+        position = Position(y = 2f, z = 1.0f)
+        lookAt(sampleModel)
     }
 
     Scene(
@@ -51,21 +48,21 @@ fun ModelScreen(
         cameraNode = cameraNode,
         cameraManipulator = rememberCameraManipulator(
             orbitHomePosition = cameraNode.worldPosition,
-            targetPosition = kizunaAi.worldPosition
+            targetPosition = sampleModel.worldPosition
         ),
         childNodes = listOf(
-            kizunaAi,
-            sky
+            sampleModel,
+            sampleEnvironment
         ),
         onFrame = {
-            cameraNode.lookAt(kizunaAi)
+            cameraNode.lookAt(sampleModel)
 
-            val wrap = PoseRotationExtractor(pose())
+            val extractor = PoseRotationExtractor(pose())
 
-            kizunaAi.model.entities.toList().mapNotNull { entity ->
-                val name = kizunaAi.model.getName(entity)
-                val rotation = wrap.extractByName(name)
-                val poseQuaternion = rotation?.toQuaternion()
+            sampleModel.model.entities.toList().mapNotNull { entity ->
+                val name = sampleModel.model.getName(entity)
+                val poseRotation = extractor.extractByName(name)
+                val poseQuaternion = poseRotation?.toQuaternion()
                 if (poseQuaternion == null) {
                     null
                 } else {
@@ -74,7 +71,7 @@ fun ModelScreen(
             }.forEach { (poseQuaternion, entity) ->
                 val floatArray = poseQuaternion.toFloatArray()
 
-                kizunaAi.model.engine.transformManager.setTransform(
+                sampleModel.model.engine.transformManager.setTransform(
                     entity,
                     floatArray
                 )

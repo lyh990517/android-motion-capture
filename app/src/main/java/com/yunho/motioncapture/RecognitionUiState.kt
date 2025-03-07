@@ -3,6 +3,7 @@ package com.yunho.motioncapture
 import android.app.Application
 import android.graphics.Bitmap
 import android.graphics.Matrix
+import android.util.Log
 import androidx.camera.core.ImageAnalysis
 import androidx.lifecycle.AndroidViewModel
 import com.google.mediapipe.framework.image.BitmapImageBuilder
@@ -32,6 +33,15 @@ class RecognitionViewModel(application: Application) : AndroidViewModel(applicat
                 val leftHand = result.leftHandWorldLandmarks()
                 val rightHand = result.rightHandWorldLandmarks()
                 val face = result.faceLandmarks()
+
+                val poseResult = PoseSolver.solve(
+                    mainBodyLandmarks = mainBody,
+                    leftHandLandmarks = leftHand,
+                    rightHandLandmarks = rightHand,
+                    faceLandmarks = face
+                )
+
+                Log.i("result", "poseResult: $poseResult")
             }
 
         val options = optionsBuilder.build()

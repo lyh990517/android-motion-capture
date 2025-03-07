@@ -1,6 +1,8 @@
 package com.yunho.motioncapture
 
 import com.google.mediapipe.tasks.components.containers.Landmark
+import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
+import io.github.sceneview.math.Rotation
 import org.joml.Quaternionf
 import org.joml.Vector3f
 import kotlin.math.PI
@@ -8,58 +10,60 @@ import kotlin.math.acos
 import kotlin.math.atan2
 import kotlin.math.min
 
-data class Rotation(val x: Float, val y: Float, val z: Float, val w: Float) {
+data class PoseRotation(val x: Float, val y: Float, val z: Float, val w: Float) {
     companion object {
-        fun default() = Rotation(0f, 0f, 0f, 1f)
+        fun default() = PoseRotation(0f, 0f, 0f, 1f)
+
+        fun PoseRotation.toRotation() = Rotation(x, y, z)
     }
 
     fun toQuaternion(): Quaternionf = Quaternionf(x, y, z, w)
 }
 
 data class PoseSolverResult(
-    var upperBody: Rotation = Rotation.default(),
-    var lowerBody: Rotation = Rotation.default(),
-    var neck: Rotation = Rotation.default(),
-    var leftHip: Rotation = Rotation.default(),
-    var rightHip: Rotation = Rotation.default(),
-    var leftFoot: Rotation = Rotation.default(),
-    var rightFoot: Rotation = Rotation.default(),
-    var leftUpperArm: Rotation = Rotation.default(),
-    var rightUpperArm: Rotation = Rotation.default(),
-    var leftLowerArm: Rotation = Rotation.default(),
-    var rightLowerArm: Rotation = Rotation.default(),
-    var leftWrist: Rotation = Rotation.default(),
-    var rightWrist: Rotation = Rotation.default(),
-    var leftThumbCMC: Rotation = Rotation.default(),
-    var leftThumbMCP: Rotation = Rotation.default(),
-    var leftIndexFingerMCP: Rotation = Rotation.default(),
-    var leftIndexFingerPIP: Rotation = Rotation.default(),
-    var leftIndexFingerDIP: Rotation = Rotation.default(),
-    var leftMiddleFingerMCP: Rotation = Rotation.default(),
-    var leftMiddleFingerPIP: Rotation = Rotation.default(),
-    var leftMiddleFingerDIP: Rotation = Rotation.default(),
-    var leftRingFingerMCP: Rotation = Rotation.default(),
-    var leftRingFingerPIP: Rotation = Rotation.default(),
-    var leftRingFingerDIP: Rotation = Rotation.default(),
-    var leftPinkyFingerMCP: Rotation = Rotation.default(),
-    var leftPinkyFingerPIP: Rotation = Rotation.default(),
-    var leftPinkyFingerDIP: Rotation = Rotation.default(),
-    var rightThumbCMC: Rotation = Rotation.default(),
-    var rightThumbMCP: Rotation = Rotation.default(),
-    var rightIndexFingerMCP: Rotation = Rotation.default(),
-    var rightIndexFingerPIP: Rotation = Rotation.default(),
-    var rightIndexFingerDIP: Rotation = Rotation.default(),
-    var rightMiddleFingerMCP: Rotation = Rotation.default(),
-    var rightMiddleFingerPIP: Rotation = Rotation.default(),
-    var rightMiddleFingerDIP: Rotation = Rotation.default(),
-    var rightRingFingerMCP: Rotation = Rotation.default(),
-    var rightRingFingerPIP: Rotation = Rotation.default(),
-    var rightRingFingerDIP: Rotation = Rotation.default(),
-    var rightPinkyFingerMCP: Rotation = Rotation.default(),
-    var rightPinkyFingerPIP: Rotation = Rotation.default(),
-    var rightPinkyFingerDIP: Rotation = Rotation.default(),
-    var leftEyeRotation: Rotation = Rotation.default(),
-    var rightEyeRotation: Rotation = Rotation.default(),
+    var upperBody: PoseRotation = PoseRotation.default(),
+    var lowerBody: PoseRotation = PoseRotation.default(),
+    var neck: PoseRotation = PoseRotation.default(),
+    var leftHip: PoseRotation = PoseRotation.default(),
+    var rightHip: PoseRotation = PoseRotation.default(),
+    var leftFoot: PoseRotation = PoseRotation.default(),
+    var rightFoot: PoseRotation = PoseRotation.default(),
+    var leftUpperArm: PoseRotation = PoseRotation.default(),
+    var rightUpperArm: PoseRotation = PoseRotation.default(),
+    var leftLowerArm: PoseRotation = PoseRotation.default(),
+    var rightLowerArm: PoseRotation = PoseRotation.default(),
+    var leftWrist: PoseRotation = PoseRotation.default(),
+    var rightWrist: PoseRotation = PoseRotation.default(),
+    var leftThumbCMC: PoseRotation = PoseRotation.default(),
+    var leftThumbMCP: PoseRotation = PoseRotation.default(),
+    var leftIndexFingerMCP: PoseRotation = PoseRotation.default(),
+    var leftIndexFingerPIP: PoseRotation = PoseRotation.default(),
+    var leftIndexFingerDIP: PoseRotation = PoseRotation.default(),
+    var leftMiddleFingerMCP: PoseRotation = PoseRotation.default(),
+    var leftMiddleFingerPIP: PoseRotation = PoseRotation.default(),
+    var leftMiddleFingerDIP: PoseRotation = PoseRotation.default(),
+    var leftRingFingerMCP: PoseRotation = PoseRotation.default(),
+    var leftRingFingerPIP: PoseRotation = PoseRotation.default(),
+    var leftRingFingerDIP: PoseRotation = PoseRotation.default(),
+    var leftPinkyFingerMCP: PoseRotation = PoseRotation.default(),
+    var leftPinkyFingerPIP: PoseRotation = PoseRotation.default(),
+    var leftPinkyFingerDIP: PoseRotation = PoseRotation.default(),
+    var rightThumbCMC: PoseRotation = PoseRotation.default(),
+    var rightThumbMCP: PoseRotation = PoseRotation.default(),
+    var rightIndexFingerMCP: PoseRotation = PoseRotation.default(),
+    var rightIndexFingerPIP: PoseRotation = PoseRotation.default(),
+    var rightIndexFingerDIP: PoseRotation = PoseRotation.default(),
+    var rightMiddleFingerMCP: PoseRotation = PoseRotation.default(),
+    var rightMiddleFingerPIP: PoseRotation = PoseRotation.default(),
+    var rightMiddleFingerDIP: PoseRotation = PoseRotation.default(),
+    var rightRingFingerMCP: PoseRotation = PoseRotation.default(),
+    var rightRingFingerPIP: PoseRotation = PoseRotation.default(),
+    var rightRingFingerDIP: PoseRotation = PoseRotation.default(),
+    var rightPinkyFingerMCP: PoseRotation = PoseRotation.default(),
+    var rightPinkyFingerPIP: PoseRotation = PoseRotation.default(),
+    var rightPinkyFingerDIP: PoseRotation = PoseRotation.default(),
+    var leftEyeRotation: PoseRotation = PoseRotation.default(),
+    var rightEyeRotation: PoseRotation = PoseRotation.default(),
     var leftEyeOpenness: Float = 0f,
     var rightEyeOpenness: Float = 0f,
     var mouthOpenness: Float = 0f
@@ -156,7 +160,10 @@ const val RIGHT = 1
 fun landmarksToVector3(landmarks: List<Landmark>): List<Vector3f> =
     landmarks.map { Vector3f(it.x(), it.y(), it.z()) }
 
-class PoseSolver {
+fun normalizedLandmarksToVector3(landmarks: List<NormalizedLandmark>): List<Vector3f> =
+    landmarks.map { Vector3f(it.x(), it.y(), it.z()) }
+
+object PoseSolver {
     private val defaultDirections: HashMap<String, Vector3f> = hashMapOf(
         "upper_body" to Vector3f(1f, 0f, 0f),
         "lower_body" to Vector3f(1f, 0f, 0f),
@@ -169,7 +176,7 @@ class PoseSolver {
         mainBodyLandmarks: List<Landmark>,
         leftHandLandmarks: List<Landmark>,
         rightHandLandmarks: List<Landmark>,
-        faceLandmarks: List<Landmark>
+        faceLandmarks: List<NormalizedLandmark>
     ): PoseSolverResult {
         if (mainBodyLandmarks.isEmpty()) return PoseSolverResult()
 
@@ -415,7 +422,7 @@ class PoseSolver {
         }
 
         if (faceLandmarks.isNotEmpty()) {
-            val face = landmarksToVector3(faceLandmarks)
+            val face = normalizedLandmarksToVector3(faceLandmarks)
             val leftEyeGaze = calculateEyeGaze(
                 face[FaceIndex.LeftEyeLeft],
                 face[FaceIndex.LeftEyeRight],
@@ -458,7 +465,7 @@ class PoseSolver {
     private fun calculateUpperBodyRotation(
         leftShoulder: Vector3f,
         rightShoulder: Vector3f
-    ): Rotation {
+    ): PoseRotation {
         val spineDir = Vector3f(leftShoulder).sub(rightShoulder).normalize().also { it.y = -it.y }
         val defaultUpperBody = defaultDirections["upper_body"] ?: Vector3f(1f, 0f, 0f)
         val spineRotation = Quaternionf().rotationTo(defaultUpperBody, spineDir)
@@ -470,22 +477,22 @@ class PoseSolver {
         val bendRotation = Quaternionf().fromAxisAngleRad(bendAxis, bendAngle)
 
         val quat = Quaternionf(spineRotation).mul(bendRotation)
-        return Rotation(quat.x, quat.y, quat.z, quat.w)
+        return PoseRotation(quat.x, quat.y, quat.z, quat.w)
     }
 
-    private fun calculateLowerBodyRotation(leftHip: Vector3f, rightHip: Vector3f): Rotation {
+    private fun calculateLowerBodyRotation(leftHip: Vector3f, rightHip: Vector3f): PoseRotation {
         val hipDir = Vector3f(leftHip).sub(rightHip).normalize().also { it.y = -it.y }
         val defaultLowerBody = defaultDirections["lower_body"] ?: Vector3f(1f, 0f, 0f)
         val quat = Quaternionf().rotationTo(defaultLowerBody, hipDir)
-        return Rotation(quat.x, quat.y, quat.z, quat.w)
+        return PoseRotation(quat.x, quat.y, quat.z, quat.w)
     }
 
     private fun calculateNeckRotation(
         nose: Vector3f,
         leftShoulder: Vector3f,
         rightShoulder: Vector3f,
-        upperBodyRotation: Rotation
-    ): Rotation {
+        upperBodyRotation: PoseRotation
+    ): PoseRotation {
         val neckPos = Vector3f(leftShoulder).add(rightShoulder).mul(0.5f)
         val neckDir = Vector3f(nose).sub(neckPos).normalize()
 
@@ -503,15 +510,15 @@ class PoseSolver {
         val tiltQuat = Quaternionf().fromAxisAngleRad(Vector3f(1f, 0f, 0f), adjustedTiltAngle)
 
         val quat = Quaternionf(horizontalQuat).mul(tiltQuat)
-        return Rotation(quat.x, quat.y, quat.z, quat.w)
+        return PoseRotation(quat.x, quat.y, quat.z, quat.w)
     }
 
     private fun calculateUpperArmRotation(
         shoulder: Vector3f,
         elbow: Vector3f,
-        upperBodyRotation: Rotation,
+        upperBodyRotation: PoseRotation,
         side: Int
-    ): Rotation {
+    ): PoseRotation {
         val armDir = Vector3f(elbow).sub(shoulder).normalize().also { it.y = -it.y }
         val upperBodyQuat = upperBodyRotation.toQuaternion()
         val invUpper = Quaternionf(upperBodyQuat).conjugate()
@@ -523,15 +530,15 @@ class PoseSolver {
             defaultDirections["right_arm"] ?: Vector3f(-1f, -1f, 0f)
         }
         val quat = Quaternionf().rotationTo(defaultDir, localArmDir)
-        return Rotation(quat.x, quat.y, quat.z, quat.w)
+        return PoseRotation(quat.x, quat.y, quat.z, quat.w)
     }
 
     private fun calculateLowerArmRotation(
         elbow: Vector3f,
         wrist: Vector3f,
-        upperArmRotation: Rotation,
+        upperArmRotation: PoseRotation,
         side: Int
-    ): Rotation {
+    ): PoseRotation {
         val lowerArmDir = Vector3f(wrist).sub(elbow).normalize().also { it.y = -it.y }
         val upperArmQuat = upperArmRotation.toQuaternion()
         val invUpperArm = Quaternionf(upperArmQuat).conjugate()
@@ -543,14 +550,14 @@ class PoseSolver {
             defaultDirections["right_arm"] ?: Vector3f(-1f, -1f, 0f)
         }
         val quat = Quaternionf().rotationTo(defaultDir, localLowerArmDir)
-        return Rotation(quat.x, quat.y, quat.z, quat.w)
+        return PoseRotation(quat.x, quat.y, quat.z, quat.w)
     }
 
     private fun calculateHipRotation(
         hip: Vector3f,
         knee: Vector3f,
-        lowerBodyRotation: Rotation
-    ): Rotation {
+        lowerBodyRotation: PoseRotation
+    ): PoseRotation {
         val legDir = Vector3f(knee).sub(hip).normalize().also { it.y = -it.y }
         val lowerBodyQuat = lowerBodyRotation.toQuaternion()
         val invLowerBody = Quaternionf(lowerBodyQuat).conjugate()
@@ -563,15 +570,15 @@ class PoseSolver {
         val rotationAxis =
             Vector3f(defaultDirections["hip"]).cross(localLegDir, Vector3f()).normalize()
         val quat = Quaternionf().fromAxisAngleRad(rotationAxis, clampedAngle)
-        return Rotation(quat.x, quat.y, quat.z, quat.w)
+        return PoseRotation(quat.x, quat.y, quat.z, quat.w)
     }
 
     private fun calculateWristRotation(
         wrist: Vector3f,
         middleFinger: Vector3f,
-        lowerArmRotation: Rotation,
+        lowerArmRotation: PoseRotation,
         side: Int
-    ): Rotation {
+    ): PoseRotation {
         val wristDir = Vector3f(middleFinger).sub(wrist).normalize().also { it.y = -it.y }
         val lowerArmQuat = lowerArmRotation.toQuaternion()
         val invLowerArm = Quaternionf(lowerArmQuat).conjugate()
@@ -583,15 +590,15 @@ class PoseSolver {
             defaultDirections["right_arm"] ?: Vector3f(-1f, -1f, 0f)
         }
         val quat = Quaternionf().rotationTo(defaultDir, localWristDir)
-        return Rotation(quat.x, quat.y, quat.z, quat.w)
+        return PoseRotation(quat.x, quat.y, quat.z, quat.w)
     }
 
     private fun calculateThumbRotation(
         currentJoint: Vector3f,
         nextJoint: Vector3f,
-        parentRotation: Rotation,
+        parentRotation: PoseRotation,
         side: Int
-    ): Rotation {
+    ): PoseRotation {
         val jointDir = Vector3f(nextJoint).sub(currentJoint).normalize().also { it.y = -it.y }
         val parentQuat = parentRotation.toQuaternion()
         val invParent = Quaternionf(parentQuat).conjugate()
@@ -599,15 +606,15 @@ class PoseSolver {
 
         val defaultDir = Vector3f(if (side == LEFT) -1f else 1f, -1f, -1f).normalize()
         val quat = Quaternionf().rotationTo(defaultDir, localJointDir)
-        return Rotation(quat.x, quat.y, quat.z, quat.w)
+        return PoseRotation(quat.x, quat.y, quat.z, quat.w)
     }
 
     private fun calculateFingerRotation(
         currentJoint: Vector3f,
         nextJoint: Vector3f,
-        parentRotation: Rotation,
+        parentRotation: PoseRotation,
         side: Int
-    ): Rotation {
+    ): PoseRotation {
         val jointDir = Vector3f(nextJoint).sub(currentJoint).normalize().also { it.y = -it.y }
         val parentQuat = parentRotation.toQuaternion()
         val invParent = Quaternionf(parentQuat).conjugate()
@@ -615,10 +622,10 @@ class PoseSolver {
 
         val defaultDir = Vector3f(if (side == LEFT) 1f else -1f, -1f, 0f).normalize()
         val quat = Quaternionf().rotationTo(defaultDir, localJointDir)
-        return Rotation(quat.x, quat.y, quat.z, quat.w)
+        return PoseRotation(quat.x, quat.y, quat.z, quat.w)
     }
 
-    private fun calculateEyeRotation(x: Float, y: Float): Rotation {
+    private fun calculateEyeRotation(x: Float, y: Float): PoseRotation {
         val maxHorizontalRotation = PI.toFloat() / 6f
         val maxVerticalRotation = PI.toFloat() / 12f
 
@@ -627,7 +634,7 @@ class PoseSolver {
 
         //todo check
         val quat = Quaternionf().rotateXYZ(xRotation, yRotation, 0f)
-        return Rotation(quat.x, quat.y, quat.z, quat.w)
+        return PoseRotation(quat.x, quat.y, quat.z, quat.w)
     }
 
     private fun calculateEyeGaze(

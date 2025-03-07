@@ -11,7 +11,7 @@ fun RecognitionScreen(
 ) {
     val poseResult by viewModel.poseResultState.collectAsStateWithLifecycle()
 
-    CameraAnalyzer(viewModel.imageAnalyzer)
+    CameraPreview(viewModel.imageAnalyzer)
 
     MotionCaptureScreen { poseResult }
 }

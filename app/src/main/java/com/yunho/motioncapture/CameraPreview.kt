@@ -20,7 +20,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.LifecycleOwner
 
 @Composable
-fun CameraAnalyzer(
+fun CameraPreview(
     imageAnalyzer: ImageAnalysis.Analyzer
 ) {
     val context = LocalContext.current

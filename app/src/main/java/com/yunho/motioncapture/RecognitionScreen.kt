@@ -32,24 +32,9 @@ fun RecognitionScreen(
         }
     }
 
-    Box(modifier = modifier) {
-        CameraEffect(
-            imageAnalysisUseCase = imageAnalysisUseCase
-        )
+    CameraEffect(
+        imageAnalysisUseCase = imageAnalysisUseCase
+    )
 
-        Column(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 50.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(20.dp)
-        ) {
-            uiState.recognized?.let {
-                Text(
-                    text = it,
-                    fontSize = 100.sp
-                )
-            }
-        }
-    }
+    ModelScreen()
 }
